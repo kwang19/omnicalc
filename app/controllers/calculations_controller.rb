@@ -1,5 +1,48 @@
 class CalculationsController < ApplicationController
+  def countWord(text, match_word)
+    words = text.downcase.split(/[^a-zA-Z]/)
+    freqs = Hash.new(0)
+    words.each { |word| freqs[word] += 1 }
 
+    freqs.each { |word, freq|
+      if word == match_word.downcase
+        return freq
+      end
+    }
+    return 0
+  end
+
+  def median(array)
+      mid = array.count / 2
+      sorted = array.sort
+      array.length.odd? ? sorted[mid] : 0.5 * (sorted[mid] + sorted[mid - 1])
+  end
+
+  def variance(array, mean)
+    s = array.inject(0) {|s,x| s + (x.to_f - mean.to_f)**2}
+    return s/array.count.to_f
+  end
+
+  def mode(array)
+
+    count = []  # Number of times element is repeated in array
+    output = []
+    array.compact!
+    unique = array.uniq
+    j=0
+
+    unique.each do |i|
+        count[j] = array.count(i)
+        j+=1
+    end
+    k=0
+    count.each do |i|
+        output[k] = unique[k] if i == count.max
+        k+=1
+    end
+
+    return output.compact.inspect
+  end
   def word_count
     @text = params[:user_text]
     @special_word = params[:user_word]
@@ -11,13 +54,15 @@ class CalculationsController < ApplicationController
     # ================================================================================
 
 
-    @character_count_with_spaces = "Replace this string with your answer."
+    @character_count_with_spaces = @text.length
 
-    @character_count_without_spaces = "Replace this string with your answer."
+    #@character_count_without_spaces = @text.delete(' ').length
+    @character_count_without_spaces = @text.gsub(/\r\n/, " ").delete(' ').length
 
-    @word_count = "Replace this string with your answer."
+    @word_count = @text.split.size
 
-    @occurrences = "Replace this string with your answer."
+    #@occurrences = @text.count(@special_word)
+    @occurrences = countWord(@text, @special_word)
 
     # ================================================================================
     # Your code goes above.
@@ -30,6 +75,8 @@ class CalculationsController < ApplicationController
     @apr = params[:annual_percentage_rate].to_f
     @years = params[:number_of_years].to_i
     @principal = params[:principal_value].to_f
+    monthly_rate = @apr/1200
+    total_month = @years.to_i * 12
 
     # ================================================================================
     # Your code goes below.
@@ -38,7 +85,7 @@ class CalculationsController < ApplicationController
     # The principal value the user input is in the decimal @principal.
     # ================================================================================
 
-    @monthly_payment = "Replace this string with your answer."
+    @monthly_payment = (@principal * monthly_rate * (1+monthly_rate)**total_month)/ ((1+monthly_rate)**total_month -1)
 
     # ================================================================================
     # Your code goes above.
@@ -60,12 +107,12 @@ class CalculationsController < ApplicationController
     #   number of seconds as a result.
     # ================================================================================
 
-    @seconds = "Replace this string with your answer."
-    @minutes = "Replace this string with your answer."
-    @hours = "Replace this string with your answer."
-    @days = "Replace this string with your answer."
-    @weeks = "Replace this string with your answer."
-    @years = "Replace this string with your answer."
+    @seconds = @ending - @starting
+    @minutes = @seconds/60
+    @hours =  @minutes/60
+    @days = @hours/24
+    @weeks = @days/7
+    @years = @weeks/52
 
     # ================================================================================
     # Your code goes above.
@@ -82,27 +129,27 @@ class CalculationsController < ApplicationController
     # The numbers the user input are in the array @numbers.
     # ================================================================================
 
-    @sorted_numbers = "Replace this string with your answer."
+    @sorted_numbers = @numbers.sort
 
-    @count = "Replace this string with your answer."
+    @count = @numbers.count
 
-    @minimum = "Replace this string with your answer."
+    @minimum = @numbers.min
 
-    @maximum = "Replace this string with your answer."
+    @maximum = @numbers.max
 
-    @range = "Replace this string with your answer."
+    @range = @maximum - @minimum
 
-    @median = "Replace this string with your answer."
+    @median = median(@numbers)
 
-    @sum = "Replace this string with your answer."
+    @sum = @numbers.sum
 
-    @mean = "Replace this string with your answer."
+    @mean = @sum/@count
 
-    @variance = "Replace this string with your answer."
+    @variance = variance(@numbers, @mean)
 
-    @standard_deviation = "Replace this string with your answer."
+    @standard_deviation = Math.sqrt(@variance)
 
-    @mode = "Replace this string with your answer."
+    @mode = mode(@numbers)
 
     # ================================================================================
     # Your code goes above.
